@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
+import 'package:safepay_checkout/safepay_payment_gateway.dart';
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key});

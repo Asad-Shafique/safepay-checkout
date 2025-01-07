@@ -5,12 +5,12 @@ A Flutter package to integrate Safepay Payment Gateway for seamless and secure p
 
 ## Installation
 Add the following dependency in your pubspec.yaml:
-    safepay_payment_gateway:
+    safepay_checkout:
 Run:
     flutter pub get
 
 Or simply run:
-    flutter pub add safepay_payment_gateway
+    flutter pub add safepay_checkout
 
 
 ## Features
@@ -25,7 +25,7 @@ Follow these steps to integrate the package into your Flutter app:
 ### 1. Import the Package
 dart
 Copy code
-import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
+import 'package:safepay_checkout/safepay_payment_gateway.dart';
 
 ### 2. Add the Safepay Checkout Widget
 Use the SafepayCheckout widget to initiate payments:
@@ -95,7 +95,7 @@ Here’s a complete example to get started:
 ### Example code
 ```dart
 import 'package:flutter/material.dart';
-import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
+import 'package:safepay_checkout/safepay_payment_gateway.dart';
 
 void main() {
   runApp(const MyApp());

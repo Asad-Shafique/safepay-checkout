@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
+import 'package:safepay_checkout/safepay_payment_gateway.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
