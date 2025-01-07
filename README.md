@@ -33,7 +33,7 @@ Use the SafepayCheckout widget to initiate payments:
 ```dart
 SafepayCheckout(
   amount: 15000, // Payment amount
-  clientKey: 'your_client_key',
+  publicKey: 'your_client_key',
   secretKey: 'your_secret_key',
   currency: 'PKR',
   environment: SafePayEnvironment.sandbox, // or SafePayEnvironment.production
@@ -77,7 +77,7 @@ API Reference
 Parameters
 Parameter	Type	Description
 amount	double	The amount to be charged (in minor units, e.g., 15000 = PKR 150.00).
-clientKey	String	The client key provided by Safepay.
+publicKey	String	The client key provided by Safepay.
 secretKey	String	The secret key provided by Safepay.
 currency	String	Currency code (e.g., PKR).
 environment	SafePayEnvironment	sandbox or production.

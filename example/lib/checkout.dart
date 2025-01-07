@@ -129,8 +129,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 );
               },
               amount: int.tryParse(_amountController.text)!.toDouble(),
-              publicKey: '',
-              secretKey: '',
+              publicKey: 'your_client_key',
+              secretKey: 'your_secret_key',
               currency: 'PKR',
               environment: _selectedEnvironment,
               orderId: '12345',
