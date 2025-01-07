@@ -1,11 +1,11 @@
-enum Environment { production, sandbox }
+enum SafePayEnvironment { production, sandbox }
 
-extension EnvironmentValues on Environment {
+extension EnvironmentValues on SafePayEnvironment {
   String get value {
     switch (this) {
-      case Environment.production:
+      case SafePayEnvironment.production:
         return 'production';
-      case Environment.sandbox:
+      case SafePayEnvironment.sandbox:
         return 'sandbox';
     }
   }

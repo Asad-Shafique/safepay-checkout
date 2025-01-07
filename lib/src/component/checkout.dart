@@ -1,41 +1,45 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
+import 'package:safepay_payment_gateway/src/constant/package_constant.dart';
 import 'package:safepay_payment_gateway/src/enum/enviroment.dart';
 import 'package:safepay_payment_gateway/src/enum/theme.dart';
 
 import 'package:webview_flutter/webview_flutter.dart';
-import 'dart:convert'; // For JSON encoding and decoding
+import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SafepayCheckout extends StatefulWidget {
+  final Widget Function(BuildContext context) checkoutButton;
   final double amount;
   final String clientKey;
+  final String secretKey;
   final String currency;
-  final bool? webhooks;
-  final Environment environment;
+  final SafePayEnvironment environment;
   final String orderId;
-  final TextStyle? buttonStyle;
-  final ThemeType buttonTheme;
-  final VoidCallback onPaymentCancelled;
-  final VoidCallback onPaymentComplete;
-  final VoidCallback onErrorFetchingTracker;
+  final VoidCallback onPaymentFailed;
+  final VoidCallback onPaymentCompleted;
+  final VoidCallback onAuthenticationError;
   final String successUrl;
-  final String errorUrl;
+  final String failUrl;
 
   const SafepayCheckout({
     Key? key,
     required this.amount,
+    required this.checkoutButton,
     required this.clientKey,
+    required this.secretKey,
     required this.currency,
-    this.webhooks,
     required this.environment,
     required this.orderId,
-    this.buttonStyle,
-    required this.buttonTheme,
-    required this.onPaymentCancelled,
-    required this.onPaymentComplete,
-    required this.onErrorFetchingTracker,
+    required this.onPaymentFailed,
+    required this.onPaymentCompleted,
+    required this.onAuthenticationError,
     required this.successUrl,
-    required this.errorUrl,
+    required this.failUrl,
   }) : super(key: key);
 
   @override
@@ -43,204 +47,167 @@ class SafepayCheckout extends StatefulWidget {
 }
 
 class _SafepayCheckoutState extends State<SafepayCheckout> {
-  bool isLoading = false; // To handle the loader state
-  String token = '';
-  String authtoken = '';
-  String X_SPY_TOKEN =
-      "ff22ed1a2214242e47b2e0fcaf496587b088cd2b3a97c1909ea1ec8db59632f0";
+  //var
+  bool isLoading = false;
+  String _token = '';
+  String _authtoken = '';
 
+  // CHECKOUT URL BASES ON ENVIROMENT
   String get baseURL {
-    return widget.environment == Environment.production
-        ? 'https://api.getsafepay.com/'
-        : 'https://sandbox.api.getsafepay.com/';
+    return widget.environment == SafePayEnvironment.production
+        ? productionBaseUrl
+        : sandboxBaseUrl;
   }
 
   String get componentUrl {
-    return widget.environment == Environment.production
-        ? 'https://getsafepay.com/'
-        : 'https://sandbox.api.getsafepay.com/';
+    return widget.environment == SafePayEnvironment.production
+        ? productionComponentUrl
+        : sandboxComponentUrl;
   }
 
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-
-Future<void> createCheckoutUrl() async {
-  final String secretKey = 'SAFEPAY_SECRET_KEY';
-  final String host = 'https://sandbox.api.getsafepay.com';
-
-  final Uri url = Uri.parse('$host/v1/checkouts/payment');
-  
-  final Map<String, dynamic> body = {
-    "tracker": token,
-    "tbt": authtoken,
-    "environment": widget.environment.value,
-    "source": "mywebsite.com",
-    "redirect_url": "https://mywebsite.com/order/success",
-    "cancel_url": "https://mywebsite.com/order/cancel"
-  };
-
-  try {
-    final response = await http.post(
-      url,
-      headers: {
-        'X-SFPY-MERCHANT-SECRET': X_SPY_TOKEN,
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(body),
-    );
-
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      final checkoutUrl = data['checkout_url'];
-      print('Checkout URL: $checkoutUrl');
+  PlatformType getPlatformType() {
+    if (kIsWeb) {
+      return PlatformType.web;
+    } else if (Platform.isAndroid || Platform.isIOS) {
+      return PlatformType.mobile;
     } else {
-      print('Failed to create checkout URL: ${response.body}');
+      throw UnsupportedError('Unsupported platform');
     }
-  } catch (error) {
-    print('Error: $error');
   }
-}
 
+  // API TO FETCHTOKEN
   Future<void> fetchToken() async {
     try {
       final response = await http.post(
-        Uri.parse('${baseURL}order/payments/v3/'),
+        Uri.parse('${baseURL}$fetchTokenEndpoint'),
         headers: {
           'Content-Type': 'application/json',
         },
         body: jsonEncode(<String, dynamic>{
-          "amount": widget.amount.toInt(),
-          "intent": "CYBERSOURCE",
-          "mode": "payment",
+          "amount": widget.amount.toInt() * 100,
+          "intent": intent,
+          "mode": paymentmode,
           "currency": widget.currency.toString(),
           "merchant_api_key": widget.clientKey.toString(),
           "order_id": widget.orderId.toString(),
-          "source": "mobile",
+          "source": getPlatformType().value
         }),
       );
-
       if (response.statusCode == 201) {
         final jsonResponse = json.decode(response.body);
-        token = jsonResponse['data']['tracker']['token'];
+        _token = jsonResponse['data']['tracker']['token'];
       } else {
         debugPrint('Error: ${response.statusCode} - ${response.body}');
-        widget.onErrorFetchingTracker();
+        widget.onAuthenticationError();
       }
     } catch (e) {
       debugPrint('Exception in fetchToken: $e');
-      widget.onErrorFetchingTracker();
+      widget.onAuthenticationError();
     }
   }
 
+  // API TO GENERATE AUTH TOKEN
   Future<void> generateAuthToken() async {
     try {
       final response = await http.post(
-        Uri.parse('${baseURL}client/passport/v1/token'),
+        Uri.parse('$baseURL$authTokenEndpoint'),
         headers: {
           'Content-Type': 'application/json',
-          'X-SFPY-MERCHANT-SECRET': X_SPY_TOKEN,
+          secretKey: widget.secretKey,
         },
         body: jsonEncode(<String, dynamic>{
-          "amount": widget.amount.toInt(),
-          "intent": "CYBERSOURCE",
-          "mode": "payment",
+          "amount": widget.amount.toInt() * 100,
+          "intent": intent,
+          "mode": paymentmode,
           "currency": widget.currency.toString(),
           "merchant_api_key": widget.clientKey.toString(),
           "order_id": widget.orderId.toString(),
-          "source": "mobile",
+          "source": getPlatformType().value,
         }),
       );
-
       if (response.statusCode == 200) {
         final jsonResponse = json.decode(response.body);
-        authtoken = jsonResponse['data'];
+        _authtoken = jsonResponse['data'];
       } else {
         debugPrint('Error: ${response.statusCode} - ${response.body}');
-        widget.onErrorFetchingTracker();
+        widget.onAuthenticationError();
       }
     } catch (e) {
       debugPrint('Exception in generateAuthToken: $e');
-      widget.onErrorFetchingTracker();
+      widget.onAuthenticationError();
     }
   }
 
+  // HANDLING PAYMENT PROCESS AFTER FETCH AND GENERATE
   Future<void> handlePaymentProcess() async {
     setState(() {
       isLoading = true;
     });
-
     await fetchToken();
     await generateAuthToken();
-
-    if (token.isNotEmpty && authtoken.isNotEmpty) {
-      final params = {
-        'tracker': token,
-        'tbt': authtoken,
-        'environment': widget.environment.value,
-        'source': 'mobile',
-        'redirect_url': widget.successUrl,
-        'cancel_url': widget.errorUrl,
-      };
-
+    if (_token.isNotEmpty && _authtoken.isNotEmpty) {
       final checkoutUrl =
-          '${componentUrl}checkout/pay?${Uri(queryParameters: params).query}';
-
+          "${componentUrl}embedded/payment/auth?tracker=$_token&tbt=$_authtoken&order_id=${widget.orderId}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => Scaffold(
-            appBar: AppBar(title: const Text("Safepay Checkout")),
-            body: WebViewWidget(
-              controller: WebViewController()
-                ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                ..setNavigationDelegate(
-                  NavigationDelegate(
-                    onProgress: (int progress) {
-                      // Update loading bar.
-                    },
-                    onPageStarted: (String url) {
-                      final uri = Uri.parse(url);
-                      final action = uri.queryParameters['action'];
-                      if (action == 'cancelled') {
-                        widget.onPaymentCancelled();
-                      } else if (action == 'complete') {
-                        widget.onPaymentComplete();
-                      }
-                    },
+              appBar: getPlatformType().value == 'hosted'
+                  ? AppBar(
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      toolbarHeight: kToolbarHeight,
+                    )
+                  : AppBar(
+                      title: Text("Safepay Checkout"),
+                      centerTitle: true,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                    ),
+              body: InAppWebView(
+                initialUrlRequest: URLRequest(
+                  url: WebUri(checkoutUrl),
+                  headers: {secretKey: widget.secretKey},
+                ),
+                initialOptions: InAppWebViewGroupOptions(
+                  crossPlatform: InAppWebViewOptions(
+                    javaScriptEnabled: true,
                   ),
-                )
-                ..loadRequest(Uri.parse(checkoutUrl)),
-            ),
-          ),
+                ),
+                onWebViewCreated: (controller) {
+                  _webViewController = controller;
+                },
+                onLoadStart: (controller, url) {
+                  if (url != null &&
+                      url.toString().contains(successPaymentUrlContains)) {
+                    //for successful payment
+                    Future.delayed(const Duration(seconds: 2), () {
+                      Navigator.of(context).pop();
+                      widget.onPaymentCompleted();
+                    });
+                  } else {
+                    //for cancelled payment
+                    widget.onPaymentFailed();
+                  }
+                },
+              )),
         ),
       );
     } else {
-      widget.onErrorFetchingTracker();
+      widget.onAuthenticationError();
     }
-
     setState(() {
       isLoading = false;
     });
   }
 
+  late InAppWebViewController _webViewController;
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
         GestureDetector(
-          onTap: handlePaymentProcess,
-          child: Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: const Color(0xFF0E0E0E),
-              border: Border.all(
-                color: const Color(0xFF0E0E0E),
-              ),
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: renderLogo(widget.buttonTheme),
-          ),
-        ),
+            onTap: handlePaymentProcess, child: widget.checkoutButton(context)),
         if (isLoading)
           Positioned.fill(
             child: Container(
@@ -251,30 +218,6 @@ Future<void> createCheckoutUrl() async {
             ),
           ),
       ],
-    );
-  }
-
-  Widget renderLogo(ThemeType theme) {
-    AssetImage logo;
-    switch (theme) {
-      case ThemeType.dark:
-        logo = const AssetImage(
-            'packages/safepay_payment_gateway/assets/safepay-logo-white.png');
-        break;
-      case ThemeType.light:
-        logo = const AssetImage(
-            'packages/safepay_payment_gateway/assets/safepay-logo-dark.png');
-        break;
-      default:
-        logo = const AssetImage(
-            'packages/safepay_payment_gateway/assets/safepay-logo-blue.png');
-        break;
-    }
-
-    return Image(
-      image: logo,
-      width: 100,
-      fit: BoxFit.contain,
     );
   }
 }
