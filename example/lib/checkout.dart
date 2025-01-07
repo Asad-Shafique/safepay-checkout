@@ -1,50 +1,153 @@
 import 'package:flutter/material.dart';
 import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
 
-class Checkout extends StatefulWidget {
-  const Checkout({super.key});
+class PaymentScreen extends StatefulWidget {
+  const PaymentScreen({super.key});
 
   @override
-  State<Checkout> createState() => _CheckoutState();
+  // ignore: library_private_types_in_public_api
+  _PaymentScreenState createState() => _PaymentScreenState();
 }
 
-class _CheckoutState extends State<Checkout> {
+class _PaymentScreenState extends State<PaymentScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  final TextEditingController _amountController =
+      TextEditingController(text: "15000");
+  final TextEditingController _successUrlController =
+      TextEditingController(text: "https://www.google.com/maps");
+  final TextEditingController _failUrlController =
+      TextEditingController(text: "https://www.olx.com.pk");
+
+  SafePayEnvironment _selectedEnvironment = SafePayEnvironment.sandbox;
+
+  @override
+  void dispose() {
+    _amountController.dispose();
+    _successUrlController.dispose();
+    _failUrlController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(
-            child: SafepayCheckout(
+      appBar: AppBar(
+        title: const Text("Safepay Checkout"),
+      ),
+      body: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Amount Field
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: _amountController,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: "Amount",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter the amount";
+                  }
+                  return null;
+                },
+              ),
+            ),
+
+            // Success URL Field
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: _successUrlController,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: "Success URL",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter the success URL";
+                  }
+                  return null;
+                },
+              ),
+            ),
+
+            // Fail URL Field
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextFormField(
+                controller: _failUrlController,
+                keyboardType: TextInputType.url,
+                decoration: const InputDecoration(
+                  labelText: "Fail URL",
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter the fail URL";
+                  }
+                  return null;
+                },
+              ),
+            ),
+
+            // Environment Dropdown
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: DropdownButtonFormField<SafePayEnvironment>(
+                value: _selectedEnvironment,
+                decoration: const InputDecoration(
+                  labelText: "Environment",
+                  border: OutlineInputBorder(),
+                ),
+                items: SafePayEnvironment.values.map((environment) {
+                  return DropdownMenuItem(
+                    value: environment,
+                    child: Text(environment.toString().split('.').last),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedEnvironment = value!;
+                  });
+                },
+              ),
+            ),
+
+            // Safepay Checkout Widget
+            SafepayCheckout(
               checkoutButton: (context) {
-                return Container(
-                    child: Text(
-                  'Pay',
-                  style: TextStyle(color: Colors.black, fontSize: 24),
-                ));
+                return const Text(
+                  "Proceed to Pay",
+                  style: TextStyle(fontSize: 24),
+                );
               },
-              amount: 15000,
-              clientKey: 'sec_a7cc6fc1-088d-4f35-9dac-2bab2cb234a1',
-              secretKey:
-                  '75f04a7ed46b9bad0bb50fa4fcc27667c6766aa6d9ce57857148a412c5e44267',
+              amount: int.tryParse(_amountController.text)!.toDouble(),
+              publicKey: '',
+              secretKey: '',
               currency: 'PKR',
-              environment: SafePayEnvironment.sandbox,
+              environment: _selectedEnvironment,
               orderId: '12345',
               onPaymentFailed: () {
                 print('cancel');
               },
               onPaymentCompleted: () {
-                print('fine working');
+                print('Payment successful');
               },
               onAuthenticationError: () {
-                print('auth error');
+                print('Authentication error');
               },
-              successUrl: 'https://www.google.com/maps',
-              failUrl: 'https://www.olx.com.pk/',
+              successUrl: _successUrlController.text,
+              failUrl: _failUrlController.text,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

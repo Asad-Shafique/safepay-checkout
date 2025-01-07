@@ -1,6 +1,5 @@
 import 'package:example/checkout.dart';
 import 'package:flutter/material.dart';
-import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
 
 void main() {
   runApp(const MyApp());
@@ -61,14 +60,13 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ElevatedButton(
-              
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => Checkout()),
+                    MaterialPageRoute(builder: (context) => PaymentScreen()),
                   );
                 },
-                child: Text(
+                child: const Text(
                   'Checkout',
                   style: TextStyle(color: Colors.black, fontSize: 16),
                 )),

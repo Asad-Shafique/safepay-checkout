@@ -4,18 +4,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:safepay_payment_gateway/safepay_payment_gateway.dart';
-import 'package:safepay_payment_gateway/src/constant/package_constant.dart';
-import 'package:safepay_payment_gateway/src/enum/enviroment.dart';
-import 'package:safepay_payment_gateway/src/enum/theme.dart';
-
-import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SafepayCheckout extends StatefulWidget {
   final Widget Function(BuildContext context) checkoutButton;
   final double amount;
-  final String clientKey;
+  final String publicKey;
   final String secretKey;
   final String currency;
   final SafePayEnvironment environment;
@@ -27,10 +22,10 @@ class SafepayCheckout extends StatefulWidget {
   final String failUrl;
 
   const SafepayCheckout({
-    Key? key,
+    super.key,
     required this.amount,
     required this.checkoutButton,
-    required this.clientKey,
+    required this.publicKey,
     required this.secretKey,
     required this.currency,
     required this.environment,
@@ -40,9 +35,10 @@ class SafepayCheckout extends StatefulWidget {
     required this.onAuthenticationError,
     required this.successUrl,
     required this.failUrl,
-  }) : super(key: key);
+  });
 
   @override
+  // ignore: library_private_types_in_public_api
   _SafepayCheckoutState createState() => _SafepayCheckoutState();
 }
 
@@ -79,7 +75,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
   Future<void> fetchToken() async {
     try {
       final response = await http.post(
-        Uri.parse('${baseURL}$fetchTokenEndpoint'),
+        Uri.parse('$baseURL$fetchTokenEndpoint'),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -88,7 +84,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
           "intent": intent,
           "mode": paymentmode,
           "currency": widget.currency.toString(),
-          "merchant_api_key": widget.clientKey.toString(),
+          "merchant_api_key": widget.publicKey.toString(),
           "order_id": widget.orderId.toString(),
           "source": getPlatformType().value
         }),
@@ -120,7 +116,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
           "intent": intent,
           "mode": paymentmode,
           "currency": widget.currency.toString(),
-          "merchant_api_key": widget.clientKey.toString(),
+          "merchant_api_key": widget.publicKey.toString(),
           "order_id": widget.orderId.toString(),
           "source": getPlatformType().value,
         }),
@@ -149,6 +145,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
       final checkoutUrl =
           "${componentUrl}embedded/payment/auth?tracker=$_token&tbt=$_authtoken&order_id=${widget.orderId}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
       Navigator.push(
+        // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
           builder: (context) => Scaffold(
@@ -159,7 +156,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                       toolbarHeight: kToolbarHeight,
                     )
                   : AppBar(
-                      title: Text("Safepay Checkout"),
+                      title: const Text("Safepay Checkout"),
                       centerTitle: true,
                       backgroundColor: Colors.transparent,
                       elevation: 0,
@@ -169,7 +166,9 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                   url: WebUri(checkoutUrl),
                   headers: {secretKey: widget.secretKey},
                 ),
+                // ignore: deprecated_member_use
                 initialOptions: InAppWebViewGroupOptions(
+                  // ignore: deprecated_member_use
                   crossPlatform: InAppWebViewOptions(
                     javaScriptEnabled: true,
                   ),
@@ -182,6 +181,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                       url.toString().contains(successPaymentUrlContains)) {
                     //for successful payment
                     Future.delayed(const Duration(seconds: 2), () {
+                      // ignore: use_build_context_synchronously
                       Navigator.of(context).pop();
                       widget.onPaymentCompleted();
                     });
