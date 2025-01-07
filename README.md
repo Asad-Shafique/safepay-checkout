@@ -1,6 +1,7 @@
 
 # Safepay Payment Gateway
 A Flutter package to integrate Safepay Payment Gateway for seamless and secure payment processing. This package supports both sandbox and production environments, provides options for customization, and handles payment success, failure, and authentication errors.
+### Currently available on Android, Ios and Web
 
 ## Installation
 Add the following dependency in your pubspec.yaml:
