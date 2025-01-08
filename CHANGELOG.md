@@ -10,3 +10,7 @@ updated
 ## 1.0.2
 
 Enum documentation updated
+
+## 1.0.3
+
+README.md file updated
