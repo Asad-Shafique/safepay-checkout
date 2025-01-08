@@ -29,7 +29,7 @@ SafepayCheckout(
   publicKey: 'Your public key',
   secretKey: 'Your secret key',
   currency: 'PKR',
-  environment: Safe,
+  environment: SafePayEnvironment.sandbox,
   orderId: '9023',
   successUrl: 'yourdomain.com',
   failUrl: 'yourfaildomain.com',
