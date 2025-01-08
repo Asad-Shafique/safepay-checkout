@@ -58,7 +58,7 @@ This code will add the Safepay payment gateway to your screen, enabling payment 
 | `publicKey`           | `String`                  | Your Safepay public key.                                                     |
 | `secretKey`           | `String`                  | Your Safepay secret key.                                                     |
 | `currency`            | `String`                  | The currency code, e.g., `PKR`, `USD`.                                      |
-| `environment`         | `SafePayEnvironment`      | The environment setting for the payment (e.g., `Safe`, `Test`).              |
+| `environment`         | `SafePayEnvironment`      | The environment setting for the payment (e.g., `production`, `sandbox`).              |
 | `orderId`             | `String`                  | Unique identifier for the order.                                             |
 | `onPaymentFailed`     | `VoidCallback`            | Callback triggered in case of a payment failure.                             |
 | `onPaymentCompleted`  | `VoidCallback`            | Callback triggered when the payment has been successfully completed.         |
