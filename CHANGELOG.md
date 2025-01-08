@@ -14,3 +14,7 @@ Enum documentation updated
 ## 1.0.3
 
 README.md file updated
+
+## 1.0.4
+
+Refractor code for Error messages

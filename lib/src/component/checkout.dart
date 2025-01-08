@@ -109,10 +109,12 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
       } else {
         debugPrint('Error: ${response.statusCode} - ${response.body}');
         widget.onAuthenticationError();
+        return;
       }
     } catch (e) {
       debugPrint('Exception in fetchToken: $e');
       widget.onAuthenticationError();
+      return;
     }
   }
 
@@ -141,10 +143,12 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
       } else {
         debugPrint('Error: ${response.statusCode} - ${response.body}');
         widget.onAuthenticationError();
+        return;
       }
     } catch (e) {
       debugPrint('Exception in generateAuthToken: $e');
       widget.onAuthenticationError();
+      return;
     }
   }
 
@@ -153,8 +157,18 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
     setState(() {
       isLoading = true;
     });
+
     await fetchToken();
+    if (_token.isEmpty) {
+      Navigator.of(context).pop();
+      return;
+    }
+
     await generateAuthToken();
+    if (_authtoken.isEmpty) {
+      Navigator.of(context).pop();
+      return;
+    }
     if (_token.isNotEmpty && _authtoken.isNotEmpty) {
       setState(() {
         checkoutUrl =
@@ -217,7 +231,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                         widget.onPaymentFailed();
                       } else {
                         //For cancelled payment
-                        widget.onPaymentFailed();
+                        // widget.onPaymentFailed();
                       }
                     },
                   )
