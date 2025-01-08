@@ -6,3 +6,7 @@ A simple and easy-to-integrate Flutter package for Safepay Checkout. Clients can
 
 Testing has been completed on Android and iOS, and the documentation for package usage has been
 updated
+
+## 1.0.2
+
+Enum documentation updated

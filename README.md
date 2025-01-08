@@ -10,7 +10,7 @@ To get started, add the following dependency to your **`pubspec.yaml`** file:
 
 ```yaml
 dependencies:
-  safepay_checkout: ^1.0.0
+  safepay_checkout: ^1.0.2
 ```
 
 ### Step 2: Import the Package
