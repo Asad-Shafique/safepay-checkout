@@ -1,4 +1,4 @@
-import 'package:example/checkout.dart';
+import 'package:example/test.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -63,8 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const PaymentScreen()),
+                    MaterialPageRoute(builder: (context) => const TestScreen()),
                   );
                 },
                 child: const Text(

@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SafepayCheckout extends StatefulWidget {
-  final Widget Function(BuildContext context) checkoutButton;
   final double amount;
   final String publicKey;
   final String secretKey;
@@ -25,7 +24,6 @@ class SafepayCheckout extends StatefulWidget {
   const SafepayCheckout({
     super.key,
     required this.amount,
-    required this.checkoutButton,
     required this.publicKey,
     required this.secretKey,
     required this.currency,
@@ -46,8 +44,16 @@ class SafepayCheckout extends StatefulWidget {
 class _SafepayCheckoutState extends State<SafepayCheckout> {
   //var
   bool isLoading = false;
+  bool showScreen = false;
   String _token = '';
   String _authtoken = '';
+  String checkoutUrl = '';
+
+  @override
+  void initState() {
+    super.initState();
+    handlePaymentProcess();
+  }
 
   // CHECKOUT URL BASES ON ENVIROMENT
   String get baseURL {
@@ -150,53 +156,14 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
     await fetchToken();
     await generateAuthToken();
     if (_token.isNotEmpty && _authtoken.isNotEmpty) {
-      final checkoutUrl =
-          "${componentUrl}embedded/payment/auth?tracker=$_token&tbt=$_authtoken&order_id=${widget.orderId}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
-      Navigator.push(
-        // ignore: use_build_context_synchronously
-        context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(
-              appBar: getPlatformType().value == 'hosted'
-                  ? AppBar(
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                      toolbarHeight: kToolbarHeight,
-                    )
-                  : AppBar(
-                      title: const Text("Safepay Checkout"),
-                      centerTitle: true,
-                      backgroundColor: Colors.transparent,
-                      elevation: 0,
-                    ),
-              body: InAppWebView(
-                initialUrlRequest: URLRequest(
-                  url: WebUri(checkoutUrl),
-                  headers: {secretKey: widget.secretKey},
-                ),
-                initialUserScripts: UnmodifiableListView<UserScript>([]),
-                initialSettings: settings,
-                onWebViewCreated: (controller) {
-                  webViewController = controller;
-                },
-                onLoadStart: (controller, url) {
-                  if (url != null &&
-                      url.toString().contains(successPaymentUrlContains)) {
-                    //For successful payment
-                    Future.delayed(const Duration(seconds: 2), () {
-                      // ignore: use_build_context_synchronously
-                      Navigator.of(context).pop();
-                      widget.onPaymentCompleted();
-                    });
-                  } else {
-                    //For cancelled payment
-                    widget.onPaymentFailed();
-                  }
-                },
-              )),
-        ),
-      );
+      setState(() {
+        checkoutUrl =
+            "${componentUrl}embedded/payment/auth?tracker=$_token&tbt=$_authtoken&order_id=${widget.orderId}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
+        showScreen = true;
+        isLoading = false;
+      });
     } else {
+      Navigator.of(context).pop();
       widget.onAuthenticationError();
     }
     setState(() {
@@ -207,20 +174,58 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
   InAppWebViewController? webViewController;
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        GestureDetector(
-            onTap: handlePaymentProcess, child: widget.checkoutButton(context)),
-        if (isLoading)
-          Positioned.fill(
-            child: Container(
-              color: Colors.black54,
-              child: const Center(
-                child: CircularProgressIndicator(),
+    return Scaffold(
+        appBar: getPlatformType().value == 'hosted'
+            ? AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                toolbarHeight: kToolbarHeight,
+              )
+            : AppBar(
+                title: const Text("Safepay Checkout"),
+                centerTitle: true,
+                backgroundColor: Colors.transparent,
+                elevation: 0,
               ),
-            ),
-          ),
-      ],
-    );
+        body: isLoading
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : showScreen
+                ? InAppWebView(
+                    initialUrlRequest: URLRequest(
+                      url: WebUri(checkoutUrl),
+                      headers: {secretKey: widget.secretKey},
+                    ),
+                    initialUserScripts: UnmodifiableListView<UserScript>([]),
+                    initialSettings: settings,
+                    onWebViewCreated: (controller) {
+                      webViewController = controller;
+                    },
+                    onLoadStart: (controller, url) {
+                      if (url != null &&
+                          url.toString().contains(successPaymentUrlContains)) {
+                        //For successful payment
+                        Future.delayed(const Duration(seconds: 2), () {
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context).pop();
+                          widget.onPaymentCompleted();
+                        });
+                      } else if (areUrlsEqual(url.toString(), widget.failUrl)) {
+                        Navigator.of(context).pop();
+                        widget.onPaymentFailed();
+                      } else {
+                        //For cancelled payment
+                        widget.onPaymentFailed();
+                      }
+                    },
+                  )
+                : Container());
+  }
+
+  bool areUrlsEqual(String url1, String url2) {
+    String normalize(String url) =>
+        url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+    return normalize(url1) == normalize(url2);
   }
 }
