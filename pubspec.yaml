@@ -1,5 +1,5 @@
 name: safepay_checkout
-description: A simple and easy-to-integrate Flutter package for Safepay Checkout. Clients can seamlessly process payments by calling a single widget and handling responses through the onPaymentSuccess callback, without managing complex payment logic.
+description: A simple and easy-to-integrate Flutter package for Safepay Checkout.
 version: 1.0.1
 homepage: https://github.com/Asad-Shafique/safepay-checkout
 
