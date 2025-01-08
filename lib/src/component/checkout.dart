@@ -163,6 +163,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
         isLoading = false;
       });
     } else {
+      // ignore: use_build_context_synchronously
       Navigator.of(context).pop();
       widget.onAuthenticationError();
     }
@@ -188,7 +189,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                 elevation: 0,
               ),
         body: isLoading
-            ? Center(
+            ? const Center(
                 child: CircularProgressIndicator(),
               )
             : showScreen

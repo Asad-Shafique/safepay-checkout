@@ -12,7 +12,7 @@ class CheckoutScreen extends StatefulWidget {
   final String failUrl;
 
   const CheckoutScreen({
-    Key? key,
+    super.key,
     required this.amount,
     required this.publicKey,
     required this.secretKey,
@@ -21,7 +21,7 @@ class CheckoutScreen extends StatefulWidget {
     required this.orderId,
     required this.successUrl,
     required this.failUrl,
-  }) : super(key: key);
+  });
 
   @override
   State<CheckoutScreen> createState() => _CheckoutScreenState();
@@ -39,15 +39,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       orderId: widget.orderId,
       onPaymentFailed: () {
         //payment failed
-        print('cancel');
+        //print('cancel');
       },
       onPaymentCompleted: () {
         // payment completed
-        print('Payment successful');
+        //print('Payment successful');
       },
       onAuthenticationError: () {
         //in case of wrong public or secret key
-        print('Authentication error');
+        //print('Authentication error');
       },
       successUrl: widget.successUrl,
       failUrl: widget.failUrl,
