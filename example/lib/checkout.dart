@@ -129,19 +129,19 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 );
               },
               amount: int.tryParse(_amountController.text)!.toDouble(),
-              publicKey: 'your_client_key',
+              publicKey: 'your_public_key',
               secretKey: 'your_secret_key',
               currency: 'PKR',
               environment: _selectedEnvironment,
               orderId: '12345',
               onPaymentFailed: () {
-                print('cancel');
+                //  print('cancel');
               },
               onPaymentCompleted: () {
-                print('Payment successful');
+                //  print('Payment successful');
               },
               onAuthenticationError: () {
-                print('Authentication error');
+                //  print('Authentication error');
               },
               successUrl: _successUrlController.text,
               failUrl: _failUrlController.text,

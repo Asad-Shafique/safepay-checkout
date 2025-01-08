@@ -18,7 +18,7 @@ Customizable checkout button.
 Supports sandbox and production environments.
 Handles payment success and failure.
 Displays an in-app web view for the checkout process.
-Easy API integration with clientKey and secretKey.
+Easy API integration with publicKey and secretKey.
 Usage
 Follow these steps to integrate the package into your Flutter app:
 
@@ -33,7 +33,7 @@ Use the SafepayCheckout widget to initiate payments:
 ```dart
 SafepayCheckout(
   amount: 15000, // Payment amount
-  publicKey: 'your_client_key',
+  publicKey: 'your_public_key',
   secretKey: 'your_secret_key',
   currency: 'PKR',
   environment: SafePayEnvironment.sandbox, // or SafePayEnvironment.production
@@ -112,7 +112,7 @@ class MyApp extends StatelessWidget {
         body: Center(
           child: SafepayCheckout(
             amount: 15000,
-            clientKey: 'your_client_key',
+            publicKey: 'your_public_key',
             secretKey: 'your_secret_key',
             currency: 'PKR',
             environment: SafePayEnvironment.sandbox,

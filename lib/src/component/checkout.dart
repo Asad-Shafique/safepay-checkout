@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -60,6 +61,13 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
         ? productionComponentUrl
         : sandboxComponentUrl;
   }
+
+  InAppWebViewSettings settings = InAppWebViewSettings(
+      isInspectable: kDebugMode,
+      mediaPlaybackRequiresUserGesture: false,
+      allowsInlineMediaPlayback: true,
+      javaScriptEnabled: true,
+      iframeAllowFullscreen: true);
 
   PlatformType getPlatformType() {
     if (kIsWeb) {
@@ -166,27 +174,22 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                   url: WebUri(checkoutUrl),
                   headers: {secretKey: widget.secretKey},
                 ),
-                // ignore: deprecated_member_use
-                initialOptions: InAppWebViewGroupOptions(
-                  // ignore: deprecated_member_use
-                  crossPlatform: InAppWebViewOptions(
-                    javaScriptEnabled: true,
-                  ),
-                ),
+                initialUserScripts: UnmodifiableListView<UserScript>([]),
+                initialSettings: settings,
                 onWebViewCreated: (controller) {
-                  _webViewController = controller;
+                  webViewController = controller;
                 },
                 onLoadStart: (controller, url) {
                   if (url != null &&
                       url.toString().contains(successPaymentUrlContains)) {
-                    //for successful payment
+                    //For successful payment
                     Future.delayed(const Duration(seconds: 2), () {
                       // ignore: use_build_context_synchronously
                       Navigator.of(context).pop();
                       widget.onPaymentCompleted();
                     });
                   } else {
-                    //for cancelled payment
+                    //For cancelled payment
                     widget.onPaymentFailed();
                   }
                 },
@@ -201,7 +204,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
     });
   }
 
-  late InAppWebViewController _webViewController;
+  InAppWebViewController? webViewController;
   @override
   Widget build(BuildContext context) {
     return Stack(
