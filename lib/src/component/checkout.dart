@@ -123,6 +123,16 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                     ),
                     initialUserScripts: UnmodifiableListView<UserScript>([]),
                     initialSettings: settings,
+                    onLoadStop: (controller, url) {
+                      if (url != null &&
+                          url.toString().contains(failPaymentUrlContains)) {
+                        Future.delayed(const Duration(seconds: 2), () {
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context).pop();
+                          widget.onPaymentFailed();
+                        });
+                      }
+                    },
                     onWebViewCreated: (controller) {
                       webViewController = controller;
                     },

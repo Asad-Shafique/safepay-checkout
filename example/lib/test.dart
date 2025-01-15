@@ -129,10 +129,8 @@ class _TestScreenState extends State<TestScreen> {
                         environment: _selectedEnvironment,
                         successUrl: _successUrlController.text,
                         failUrl: _failUrlController.text,
-                        authToken:
-                            "7XcfYaQ304ipXuIe2UbmIyGfd-CTXopgwvwYeIAYbzvDEm34gTrcHLAWjFonXf4ZbjFiPdfy3Q==",
-                        trackerToken:
-                            'track_d46da622-a558-4c75-9a0b-22cb46f11757',
+                        authToken: "auth-token",
+                        trackerToken: "tbt-tracker-token",
                       ),
                     ),
                   );

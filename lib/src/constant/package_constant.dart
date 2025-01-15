@@ -17,3 +17,4 @@ String secretKey = 'X-SFPY-MERCHANT-SECRET';
 
 //SUCCESS PAYMENT URL VALUE
 String successPaymentUrlContains = "external/complete";
+String failPaymentUrlContains = "external/error";
