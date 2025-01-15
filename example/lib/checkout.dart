@@ -5,16 +5,16 @@ class CheckoutScreen extends StatefulWidget {
   final SafePayEnvironment environment;
   final String successUrl;
   final String failUrl;
-  final String trackerToken;
-  final String authToken;
+  final String tbt;
+  final String tracker;
 
   const CheckoutScreen({
     super.key,
     required this.environment,
     required this.successUrl,
     required this.failUrl,
-    required this.trackerToken,
-    required this.authToken,
+    required this.tbt,
+    required this.tracker,
   });
 
   @override
@@ -26,8 +26,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   Widget build(BuildContext context) {
     return SafepayCheckout(
       environment: widget.environment,
-      authToken: widget.authToken,
-      trackerToken: widget.trackerToken,
+      tbt: widget.tbt,
+      tracker: widget.tracker,
       onPaymentFailed: () {
         //  payment failed
         print('cancel');

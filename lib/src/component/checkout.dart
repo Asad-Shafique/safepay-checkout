@@ -14,8 +14,8 @@ class SafepayCheckout extends StatefulWidget {
   final VoidCallback onPaymentCompleted;
   final String successUrl;
   final String failUrl;
-  final String authToken;
-  final String trackerToken;
+  final String tbt;
+  final String tracker;
 
   const SafepayCheckout(
       {super.key,
@@ -24,8 +24,8 @@ class SafepayCheckout extends StatefulWidget {
       required this.onPaymentCompleted,
       required this.successUrl,
       required this.failUrl,
-      required this.authToken,
-      required this.trackerToken});
+      required this.tbt,
+      required this.tracker});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -80,10 +80,10 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
       isLoading = true;
     });
 
-    if (widget.authToken.isNotEmpty && widget.trackerToken.isNotEmpty) {
+    if (widget.tbt.isNotEmpty && widget.tracker.isNotEmpty) {
       setState(() {
         checkoutUrl =
-            "${componentUrl}embedded/payment/auth?tracker=${widget.trackerToken}&tbt=${widget.authToken}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
+            "${componentUrl}embedded/payment/auth?tracker=${widget.tracker}&tbt=${widget.tbt}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
         showScreen = true;
         isLoading = false;
       });
@@ -123,16 +123,7 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                     ),
                     initialUserScripts: UnmodifiableListView<UserScript>([]),
                     initialSettings: settings,
-                    onLoadStop: (controller, url) {
-                      if (url != null &&
-                          url.toString().contains(failPaymentUrlContains)) {
-                        Future.delayed(const Duration(seconds: 2), () {
-                          // ignore: use_build_context_synchronously
-                          Navigator.of(context).pop();
-                          widget.onPaymentFailed();
-                        });
-                      }
-                    },
+                    onLoadStop: (controller, url) {},
                     onWebViewCreated: (controller) {
                       webViewController = controller;
                     },
@@ -144,6 +135,15 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                           // ignore: use_build_context_synchronously
                           Navigator.of(context).pop();
                           widget.onPaymentCompleted();
+                        });
+                      } else if (url != null &&
+                          url.toString().contains(failPaymentUrlContains)) {
+                        //For successful payment
+
+                        Future.delayed(const Duration(seconds: 2), () {
+                          // ignore: use_build_context_synchronously
+                          Navigator.of(context).pop();
+                          widget.onPaymentFailed();
                         });
                       } else if (areUrlsEqual(url.toString(), widget.failUrl)) {
                         Navigator.of(context).pop();

@@ -41,25 +41,6 @@ class _TestScreenState extends State<TestScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Amount Field
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: TextFormField(
-                controller: _amountController,
-                keyboardType: TextInputType.number,
-                decoration: const InputDecoration(
-                  labelText: "Amount",
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return "Please enter the amount";
-                  }
-                  return null;
-                },
-              ),
-            ),
-
             // Success URL Field
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -129,8 +110,9 @@ class _TestScreenState extends State<TestScreen> {
                         environment: _selectedEnvironment,
                         successUrl: _successUrlController.text,
                         failUrl: _failUrlController.text,
-                        authToken: "auth-token",
-                        trackerToken: "tbt-tracker-token",
+                        tbt:
+                            "lwoMYaQ304j5CLdM2ha2JwV69rITMlsxVMuQE7rbnGL455zu7JcWxMTwe3ULB5TkwK-YZWnRvw==",
+                        tracker: "track_0bc34443-d969-4fc2-9780-333e1e438c96",
                       ),
                     ),
                   );
