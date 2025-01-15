@@ -56,8 +56,8 @@ This code will add the Safepay payment gateway to your screen, enabling payment 
 | `onPaymentFailed`     | `VoidCallback`            | Callback triggered in case of a payment failure.                             |
 | `onPaymentCompleted`  | `VoidCallback`            | Callback triggered when the payment has been successfully completed.         |
 
-## To get Tracker token and authentication token follow below guide link
-##https://safepay-docs.netlify.app/build-your-integration/express-checkout/?platform-=react-native#create-an-authentication-token
+##To obtain the Tracker token and authentication token, please follow the guide provided at the link below:
+https://safepay-docs.netlify.app/build-your-integration/express-checkout/?platform-=react-native#create-an-authentication-token
 
 ## Full Screen Example
 
