@@ -18,3 +18,7 @@ README.md file updated
 ## 1.0.4
 
 Refractor code for Error messages
+
+## 1.0.5
+
+Remove Api integration from package now user just have to provide authentication token and tbt tracker token
