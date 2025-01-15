@@ -25,12 +25,9 @@ Add the `SafepayCheckout` widget to your screen. This widget handles the entire 
 
 ```dart
 SafepayCheckout(
-  amount: 100,
-  publicKey: 'Your public key',
-  secretKey: 'Your secret key',
-  currency: 'PKR',
+  tracker: 'your trcker token',
+  tbt: 'your authentication token',
   environment: SafePayEnvironment.sandbox,
-  orderId: '9023',
   successUrl: 'yourdomain.com',
   failUrl: 'yourfaildomain.com',
   onPaymentFailed: () {
@@ -41,10 +38,7 @@ SafepayCheckout(
     // Payment successful
     print('Payment successful');
   },
-  onAuthenticationError: () {
-    // In case of wrong public or secret key
-    print('Authentication error');
-  },
+ 
 );
 ```
 
@@ -54,17 +48,13 @@ This code will add the Safepay payment gateway to your screen, enabling payment 
 
 | Parameter             | Data Type                 | Description                                                                 |
 |-----------------------|---------------------------|-----------------------------------------------------------------------------|
-| `amount`              | `double`                  | The amount to be processed in the payment transaction.                       |
-| `publicKey`           | `String`                  | Your Safepay public key.                                                     |
-| `secretKey`           | `String`                  | Your Safepay secret key.                                                     |
-| `currency`            | `String`                  | The currency code, e.g., `PKR`, `USD`.                                      |
+| `tracker`             | `String`                  | Your tracker token.                                                     |
+| `tbt`                 | `String`                  | Your authentication token.                                                     |
 | `environment`         | `SafePayEnvironment`      | The environment setting for the payment (e.g., `production`, `sandbox`).              |
-| `orderId`             | `String`                  | Unique identifier for the order.                                             |
-| `onPaymentFailed`     | `VoidCallback`            | Callback triggered in case of a payment failure.                             |
-| `onPaymentCompleted`  | `VoidCallback`            | Callback triggered when the payment has been successfully completed.         |
-| `onAuthenticationError`| `VoidCallback`           | Callback triggered in case of an authentication error, such as wrong keys. |
 | `successUrl`          | `String`                  | URL to redirect to on successful payment.                                    |
 | `failUrl`             | `String`                  | URL to redirect to in case of payment failure.                               |
+| `onPaymentFailed`     | `VoidCallback`            | Callback triggered in case of a payment failure.                             |
+| `onPaymentCompleted`  | `VoidCallback`            | Callback triggered when the payment has been successfully completed.         |
 
 ## Full Screen Example
 
@@ -108,26 +98,19 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   Widget build(BuildContext context) {
     return SafepayCheckout(
-      amount: widget.amount,
-      publicKey: widget.publicKey,
-      secretKey: widget.secretKey,
-      currency: widget.currency,
-      environment: widget.environment,
-      orderId: widget.orderId,
+      tracker: 'your trcker token',
+      tbt: 'your authentication token',
+      environment: SafePayEnvironment.sandbox,
+      successUrl: 'yourdomain.com',
+      failUrl: 'yourfaildomain.com',
       onPaymentFailed: () {
-        // Payment failed
+          // Payment failed
         print('Payment cancelled');
       },
       onPaymentCompleted: () {
-        // Payment successful
+         // Payment successful
         print('Payment successful');
       },
-      onAuthenticationError: () {
-        // In case of wrong public or secret key
-        print('Authentication error');
-      },
-      successUrl: widget.successUrl,
-      failUrl: widget.failUrl,
     );
   }
 }
