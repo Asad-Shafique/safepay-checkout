@@ -22,3 +22,7 @@ Refractor code for Error messages
 ## 1.0.5
 
 Remove Api integration from package now user just have to provide authentication token and tbt tracker token
+
+## 1.0.6
+
+Documentation updated with latest code

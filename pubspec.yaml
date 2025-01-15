@@ -1,6 +1,6 @@
 name: safepay_checkout
 description: A simple and easy-to-integrate Flutter package for Safepay Checkout.
-version: 1.0.5
+version: 1.0.6
 homepage: https://github.com/Asad-Shafique/safepay-checkout
 
 environment:

@@ -30,11 +30,11 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       tracker: widget.tracker,
       onPaymentFailed: () {
         //  payment failed
-        print('cancel');
+        //print('cancel');
       },
       onPaymentCompleted: () {
         // payment completed
-        print('Payment successful');
+        //print('Payment successful');
       },
       successUrl: widget.successUrl,
       failUrl: widget.failUrl,
