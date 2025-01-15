@@ -126,16 +126,13 @@ class _TestScreenState extends State<TestScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => CheckoutScreen(
-                        amount:
-                            int.tryParse(_amountController.text)?.toDouble() ??
-                                0.0,
-                        publicKey: 'your-publicKey',
-                        secretKey: 'your-secretkey',
-                        currency: 'PKR',
                         environment: _selectedEnvironment,
-                        orderId: '12345',
                         successUrl: _successUrlController.text,
                         failUrl: _failUrlController.text,
+                        authToken:
+                            "7XcfYaQ304ipXuIe2UbmIyGfd-CTXopgwvwYeIAYbzvDEm34gTrcHLAWjFonXf4ZbjFiPdfy3Q==",
+                        trackerToken:
+                            'track_d46da622-a558-4c75-9a0b-22cb46f11757',
                       ),
                     ),
                   );

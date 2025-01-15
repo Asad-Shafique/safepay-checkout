@@ -9,32 +9,23 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class SafepayCheckout extends StatefulWidget {
-  final double amount;
-  final String publicKey;
-  final String secretKey;
-  final String currency;
   final SafePayEnvironment environment;
-  final String orderId;
   final VoidCallback onPaymentFailed;
   final VoidCallback onPaymentCompleted;
-  final VoidCallback onAuthenticationError;
   final String successUrl;
   final String failUrl;
+  final String authToken;
+  final String trackerToken;
 
-  const SafepayCheckout({
-    super.key,
-    required this.amount,
-    required this.publicKey,
-    required this.secretKey,
-    required this.currency,
-    required this.environment,
-    required this.orderId,
-    required this.onPaymentFailed,
-    required this.onPaymentCompleted,
-    required this.onAuthenticationError,
-    required this.successUrl,
-    required this.failUrl,
-  });
+  const SafepayCheckout(
+      {super.key,
+      required this.environment,
+      required this.onPaymentFailed,
+      required this.onPaymentCompleted,
+      required this.successUrl,
+      required this.failUrl,
+      required this.authToken,
+      required this.trackerToken});
 
   @override
   // ignore: library_private_types_in_public_api
@@ -45,8 +36,6 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
   //var
   bool isLoading = false;
   bool showScreen = false;
-  String _token = '';
-  String _authtoken = '';
   String checkoutUrl = '';
 
   @override
@@ -85,101 +74,22 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
     }
   }
 
-  // API TO FETCHTOKEN
-  Future<void> fetchToken() async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseURL$fetchTokenEndpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, dynamic>{
-          "amount": widget.amount.toInt() * 100,
-          "intent": intent,
-          "mode": paymentmode,
-          "currency": widget.currency.toString(),
-          "merchant_api_key": widget.publicKey.toString(),
-          "order_id": widget.orderId.toString(),
-          "source": getPlatformType().value
-        }),
-      );
-      if (response.statusCode == 201) {
-        final jsonResponse = json.decode(response.body);
-        _token = jsonResponse['data']['tracker']['token'];
-      } else {
-        debugPrint('Error: ${response.statusCode} - ${response.body}');
-        widget.onAuthenticationError();
-        return;
-      }
-    } catch (e) {
-      debugPrint('Exception in fetchToken: $e');
-      widget.onAuthenticationError();
-      return;
-    }
-  }
-
-  // API TO GENERATE AUTH TOKEN
-  Future<void> generateAuthToken() async {
-    try {
-      final response = await http.post(
-        Uri.parse('$baseURL$authTokenEndpoint'),
-        headers: {
-          'Content-Type': 'application/json',
-          secretKey: widget.secretKey,
-        },
-        body: jsonEncode(<String, dynamic>{
-          "amount": widget.amount.toInt() * 100,
-          "intent": intent,
-          "mode": paymentmode,
-          "currency": widget.currency.toString(),
-          "merchant_api_key": widget.publicKey.toString(),
-          "order_id": widget.orderId.toString(),
-          "source": getPlatformType().value,
-        }),
-      );
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        _authtoken = jsonResponse['data'];
-      } else {
-        debugPrint('Error: ${response.statusCode} - ${response.body}');
-        widget.onAuthenticationError();
-        return;
-      }
-    } catch (e) {
-      debugPrint('Exception in generateAuthToken: $e');
-      widget.onAuthenticationError();
-      return;
-    }
-  }
-
   // HANDLING PAYMENT PROCESS AFTER FETCH AND GENERATE
   Future<void> handlePaymentProcess() async {
     setState(() {
       isLoading = true;
     });
 
-    await fetchToken();
-    if (_token.isEmpty) {
-      Navigator.of(context).pop();
-      return;
-    }
-
-    await generateAuthToken();
-    if (_authtoken.isEmpty) {
-      Navigator.of(context).pop();
-      return;
-    }
-    if (_token.isNotEmpty && _authtoken.isNotEmpty) {
+    if (widget.authToken.isNotEmpty && widget.trackerToken.isNotEmpty) {
       setState(() {
         checkoutUrl =
-            "${componentUrl}embedded/payment/auth?tracker=$_token&tbt=$_authtoken&order_id=${widget.orderId}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
+            "${componentUrl}embedded/payment/auth?tracker=${widget.trackerToken}&tbt=${widget.authToken}&env=${widget.environment.value}&source=mobile&redirect_url=${widget.successUrl}&cancel_url=${widget.failUrl}";
         showScreen = true;
         isLoading = false;
       });
     } else {
       // ignore: use_build_context_synchronously
       Navigator.of(context).pop();
-      widget.onAuthenticationError();
     }
     setState(() {
       isLoading = false;
@@ -210,7 +120,6 @@ class _SafepayCheckoutState extends State<SafepayCheckout> {
                 ? InAppWebView(
                     initialUrlRequest: URLRequest(
                       url: WebUri(checkoutUrl),
-                      headers: {secretKey: widget.secretKey},
                     ),
                     initialUserScripts: UnmodifiableListView<UserScript>([]),
                     initialSettings: settings,
