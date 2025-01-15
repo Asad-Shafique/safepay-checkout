@@ -25,7 +25,7 @@ Add the `SafepayCheckout` widget to your screen. This widget handles the entire 
 
 ```dart
 SafepayCheckout(
-  tracker: 'your trcker token',
+  tracker: 'your tracker token',
   tbt: 'your authentication token',
   environment: SafePayEnvironment.sandbox,
   successUrl: 'yourdomain.com',
@@ -55,6 +55,9 @@ This code will add the Safepay payment gateway to your screen, enabling payment 
 | `failUrl`             | `String`                  | URL to redirect to in case of payment failure.                               |
 | `onPaymentFailed`     | `VoidCallback`            | Callback triggered in case of a payment failure.                             |
 | `onPaymentCompleted`  | `VoidCallback`            | Callback triggered when the payment has been successfully completed.         |
+
+## To get Tracker token and authentication token follow below guide link
+##https://safepay-docs.netlify.app/build-your-integration/express-checkout/?platform-=react-native#create-an-authentication-token
 
 ## Full Screen Example
 
